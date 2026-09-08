@@ -1,12 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-</head>
-<body>
-    <h1>Hello World</h1>
-    
-</body>
+  </head>
+
+  <body>
+    <div>
+      <h1>Chat App</h1>
+      <input type="text" id="userName" placeholder="Join Chat" />
+      <button id="joinButton">Join</button>
+      <form id="messageForm">
+        <li id="messages"></li>
+        <input id="inputMessage" value="" placeholder="Write a message" />
+        <button id="sendButton">Send</button>
+      </form>
+    </div>
+  </body>
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script>
+    const socket = io();
+
+    const joinButton = document.getElementById("joinButton");
+
+    const inputUserName = document.getElementById("userName");
+
+    joinButton.addEventListener("click", () => {
+      if (inputUserName.value) {
+        socket.emit("join", (userName = inputMessage.value));
+      }
+    });
+
+    const messages = document.getElementById("messages");
+
+    const inputMessage = document.getElementById("inputMessage");
+
+    const form = document.getElementById("messageForm");
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (inputMessage.value) {
+        socket.emit("Chat", inputMessage.value);
+        inputMessage.value = "";
+      }
+      console.log("message Submitted");
+    });
+
+    socket.on("Chat Message", (msg) => {
+      const item = document.createElement("li");
+      item.textContent = msg;
+      messages.appendChild(item);
+    });
+  </script>
 </html>
