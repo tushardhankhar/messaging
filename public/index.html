@@ -3,16 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./style.css" />
     <title>Document</title>
   </head>
 
   <body>
     <div>
       <h1>Chat App</h1>
-      <input type="text" id="userName" placeholder="Join Chat" />
-      <button id="joinButton">Join</button>
+      <div id="nameBlock">
+        <input type="text" id="userName" placeholder="Please Enter Your Name" />
+        <button id="joinButton">Join</button>
+      </div>
+      <ul id="messages"></ul>
+
       <form id="messageForm">
-        <li id="messages"></li>
         <input id="inputMessage" value="" placeholder="Write a message" />
         <button id="sendButton">Send</button>
       </form>
@@ -27,9 +31,17 @@
 
     const inputUserName = document.getElementById("userName");
 
+    const form = document.getElementById("messageForm");
+
+    const nameBlock = document.getElementById("nameBlock");
+
+    form.style.display = "none";
+
     joinButton.addEventListener("click", () => {
       if (inputUserName.value) {
-        socket.emit("join", (userName = inputMessage.value));
+        socket.emit("join", (userName = inputUserName.value));
+        form.style.display = "block";
+        nameBlock.style.display = "none";
       }
     });
 
@@ -37,7 +49,6 @@
 
     const inputMessage = document.getElementById("inputMessage");
 
-    const form = document.getElementById("messageForm");
     form.addEventListener("submit", (event) => {
       event.preventDefault();
       if (inputMessage.value) {
@@ -47,9 +58,25 @@
       console.log("message Submitted");
     });
 
+    socket.on("join", (msg) => {
+      const name = document.createElement("li");
+      name.textContent = `${msg.userName} Joined`;
+      messages.appendChild(name);
+    });
+
     socket.on("Chat Message", (msg) => {
       const item = document.createElement("li");
-      item.textContent = msg;
+      if (msg.id === socket.id) {
+        item.textContent = `${msg.msg}`;
+      } else {
+        item.textContent = `${msg.userName} : ${msg.msg}`;
+      }
+
+      if (msg.id === socket.id) {
+        item.style.background = "#69cabf";
+        item.style.color = "white";
+        item.style.marginLeft = "auto";
+      }
       messages.appendChild(item);
     });
   </script>

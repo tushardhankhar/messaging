@@ -6,25 +6,34 @@ const app = express();
 
 const PORT = 5500;
 
+app.use(express.static("public"));
+
 let httpServer = app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
 
 const io = new Server(httpServer);
 
-app.get("/", (req, res) => {
-  res.sendFile(join(__dirname, "index.html"));
-});
-
 io.on("connection", (socket) => {
   console.log("Connection Established", socket.id);
 
   socket.on("join", (userName) => {
     socket.userName = userName;
+
+    const msg = {
+      id: socket.id,
+      userName: socket.userName,
+    };
+
+    io.emit("join", msg);
   });
 
   socket.on("Chat", (msg) => {
-    console.log(msg);
-    socket.emit("Chat Message", msg);
+    const message = {
+      id: socket.id,
+      userName: socket.userName,
+      msg,
+    };
+    io.emit("Chat Message", message);
   });
 });
